@@ -308,6 +308,10 @@ const deletehandler=()=>{
           <View>
             <Text  style={styles.text}>Total:{cost} </Text>
           </View>
+          <View>
+            <Text  style={styles.text}>The Last input: grocery:{Spend} and its cost is {Bill}</Text>
+          </View>
+
             <CustomBotton
              onPressfunction={SumHandler}
              title={'TOTAL'}
