@@ -57,7 +57,7 @@ function Record(){
     //on the start of the app
     useEffect(() => {
       createStoreTable();
-      // ShowData();
+     
     }, []);
     useEffect(()=>{
       ShowData()
@@ -316,7 +316,7 @@ const deletehandler=()=>{
              onPressfunction={()=>{
               counterData ? setTableboolean(true) :alert('no any data')
               setCounterdata( counterData++)
-              // setTableboolean(true)
+   
 
                
              }}
