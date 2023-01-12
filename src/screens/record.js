@@ -319,11 +319,7 @@ const deletehandler=()=>{
                <CustomBotton
              onPressfunction={()=>{
               counterData ? setTableboolean(true) :alert('no any data')
-              setCounterdata( counterData++)
-   
-
-               
-             }}
+              setCounterdata( counterData++)}}
              title={'SHOW TABLE'}
             />
             <CustomBotton
