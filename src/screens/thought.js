@@ -14,9 +14,9 @@ import {
 import SQLite from 'react-native-sqlite-storage';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import Profile from "./profile";
+import { TabActions } from "@react-navigation/native";
 // import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-
-
+//intiation of database
 const db = SQLite.openDatabase(
   {
     name: 'MainDB',
@@ -26,103 +26,89 @@ const db = SQLite.openDatabase(
   error => { console.log(error) }
 );
 
+//constant variable to be used 
+const numDaysinMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+const monthsnames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec']
+const daysInWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thur', 'Fri', 'Sat']
+const dateNow=new Date()
+const dateCurrent=dateNow.getDate()
+const monthNow= dateNow.getMonth()
+const curNoDays = numDaysinMonth[monthNow]
+const Month = monthsnames[monthNow]
+const dateLiteral=`${dateCurrent} ${Month}`
+
+
+
 const Tab = createMaterialTopTabNavigator();
 
-function Random() {
-  const [inputValue,setinputValue]=useState('i am trying this now!!'); 
 
-  const numDaysinMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
-  const monthsnames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec']
-  const daysInWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thur', 'Fri', 'Sat']
-  let i, l, todArray = []
-
-  const timePicker = () => {
-    let cDate = new Date
-    let todayDat = cDate.getDate()
-  
-    let curNoDays = numDaysinMonth[cDate.getMonth()]
-    let Month = monthsnames[cDate.getMonth()]
-    let today=cDate.getDay()
-    let day = today - 2
-    let c; 
-
-    for (i = todayDat - 2; i <= todayDat + 2; i++) {
-      if (day < 0) day = -2 ? day = 5 : day = 6;
-      if  (day > 6) day = 7 ? day = 0 : day = 1;
-      c=i
-      if (i>curNoDays){
-        c=i-curNoDays
-        Month = monthsnames[cDate.getMonth()+1]
-      }
-      if (i == todayDat - 1) {
-        todArray.push('Yesterday')   
-      }
-      else if (i == todayDat) {
-        todArray.push('Today')
-      }
-      else if (i == todayDat + 1) {
-        todArray.push('Tomorrow')
-      }
-      else {
-        todArray.push(daysInWeek[day] + ' ' + Month + ' ' + c)
-      }
-      day++
-    }
-    return todArray;
-  }
-  let days = timePicker()
-  const UserInputText=(props)=>{
-    return (
-      <TextInput
-      {...props}
-      editable
-      />
-    )
-    
-  }
-
-  function NewThoughts(e){
-
+// for creating new tab after every 24hrs
+function NewTab({arr}){
+  return(
+    <Tab.Navigator
+    screenOptions={{
+      tabBarLabelStyle: { fontSize: 8 },
+    }}
+  >
+{
+  arr.map((item,index)=>{
     return(
-      <View style={styles.container} >
-        <UserInputText
-          value={inputValue}
-          multiline
-          onChangeText={text=>setinputValue(text)}
-          style={styles.input}
-        />
-
-      </View>
-         
+      <Tab.Screen
+      key={index +item + 'abcd'}
+      name={item.toString()}
+      component={NewThoughts}
+    />
     )
-  }
+  })
+}
+    </Tab.Navigator>
+  )
+}
+
+//function component to be used in creating the new input methods
+function NewThoughts(e){
+  const [inputValue,setinputValue]=useState(''); 
+  return(
+    <View style={styles.thoughtContainer} >
+      <TextInput
+        value={inputValue}
+        placeholder={'write down the review of your day'}
+        multiline={true}
+        onChangeText={text=>setinputValue(text)}
+        style={styles.thoughtInput}
+        placeholderTextColor='grey'
+      />
+
+    </View>
+       
+  )
+}
+
+
+
+//main function to return the tabs  having a blank or filled txt input
+function Random() {
+  const [time,setTime]=useState([dateLiteral])
+  useEffect(()=>{
+    let timer=setTimeout(()=>{
+      setTime([...time,dateLiteral])
+    },1000*24*60*60);
+    return ()=>{clearTimeout(timer)}
+  },[time])
 
   return (
     <View style={styles.container}>
-      <Tab.Navigator
-        screenOptions={{
-          tabBarLabelStyle: { fontSize: 8 },
-        }}
-      >
-        {
-          days.map((item) =>
-            <Tab.Screen
-              key={item.toString()}
-              name={item}
-              // component={Profile}
-              component={NewThoughts}
-            />
-          )
-        }
-      </Tab.Navigator>
+     <NewTab
+      arr={time}
+     />
     </View>
   );
 }
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    //width: '100%',
-    //height: '100%',
+    width: '100%',
+    height: '100%',
     padding: 16,
     paddingTop: 25,
     backgroundColor: '#ffffff',
@@ -180,9 +166,26 @@ const styles = StyleSheet.create({
   input: {
     textAlign: 'center',
     color: 'black',
-    height: 100,
-    width: 100,
+    height: '100%',
+    width: '100%',
   },
+  thoughtInput:{
+    color: 'black',
+    height: '100%',
+    width: '100%',
+    borderColor:'blue'
+    
+  },
+  thoughtContainer:{
+    flex: 1,
+    // width: '100%',
+    // height: '100%',
+    padding: 16,
+    paddingTop: 25,
+    backgroundColor: '#ffffff',
+      // justifyContent:'center',
+      alignItems:'start',
+  }
 
 });
 export default Random;

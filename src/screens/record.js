@@ -26,29 +26,30 @@ import ShowTable from "../utilis/showtable";
 
 function Record(){
   let counter=0;
-  // let counterData=0
+
    // states of the app
+   
     const [sectionData,setSectionData]=useState([counter]);
     const [Spend,setSpend]=useState(''); 
-    const [Bill,setBill]=useState('');
-    const [cost,setCost]=useState(0)
+    // const [Bill,setBill]=useState('');
+    const [cost,setCost]=useState(0) // const [Bill,setBill]=useState('');
     const [warning,setWarning]=useState(false);
     const [showTable,setshowTable]=useState(false)
     const [TableBoolean,setTableboolean]=useState(false)
     const [newtabledata,setnewtabledata]=useState([])
     const [btnClicked,setBtnclicked]=useState(false);
-        const [counterData,setCounterdata]=useState(0)
+   const [counterData,setCounterdata]=useState(0)
     const DATA=[
       {
          title:'Title 1',
-         data:sectionData,
+         data:newtabledata,
       },
      
   ];
   const DATA1=[
     {
        title:'Title 2',
-       data:newtabledata[0],    
+       data:sectionData,    
     },
    
 ];
@@ -57,14 +58,10 @@ function Record(){
     //on the start of the app
     useEffect(() => {
       createStoreTable();
+         ShowData()
      
     }, []);
-    useEffect(()=>{
-      ShowData()
-      console.log(`from use effect:the value of counter=${counterData}`)
-
-    },[counterData])
-  
+ 
 
     const createStoreTable=()=>{
         db.transaction((tx)=>{
@@ -90,8 +87,8 @@ function Record(){
 
   const CostKeeperHandler=async(e)=>{
     let value=e.nativeEvent.text
-      setBill(value);
-      if (!value){
+     setCounterdata(prev) 
+      if (!value){     
         setWarning(true)
       }
       else{
@@ -100,11 +97,7 @@ function Record(){
               "INSERT INTO Bookkeeping (Liabilities,Cost) VALUES (?,?);",
               [Spend,value],
               ()=>{
-                  // setCounterdata( counterData++)
-                  ()=>{setCounterdata( counterData++)}
-                  setSectionData([...sectionData,[counter+1]]);
-               
-              
+                setSectionData([...sectionData,{"Liabilities":Spend,"Cost":value}])  
               },
               error=>{console.log(error)}
           )
@@ -145,14 +138,13 @@ const ShowData =async()=>{
         (tx,results)=>{
           let len=results.rows.length
           let rowResults=results.rows.raw()
-       
+
           if (len ===0){
             setBtnclicked(true)
           }
+
           else{
-     
-           setnewtabledata([...newtabledata,rowResults])
-            // setCounterdata( counterData++)
+          setSectionData(rowResults)
           }
         },
         error=>{console.log(error)}
@@ -181,8 +173,8 @@ const deletehandler=()=>{
           }}
           onShow={()=>{
                 console.log(`from modal:the value of counter=${counterData}`)  
-                // counterData ?  ShowData():alert('no any data')
-                ShowData()
+                console.log(`the data is ${sectionData[1].Cost}`)
+             
           }}
         >
           <Text style={styles.text}>SHOWING TABLE</Text>
@@ -197,8 +189,8 @@ const deletehandler=()=>{
             keyExtractor={(item,index)=>index.toString()}
             sections={DATA1}
             renderItem={({item})=>(
+              
               <Row style={styles.cell}>
-                {/* <Text style={styles.text}>{item.Liabilities}</Text> */}
                 <TextInput
                  value={item.Liabilities}
                  style={styles.input}
@@ -220,8 +212,10 @@ const deletehandler=()=>{
                 renderItem={({item})=>(
                   <Row style={styles.cell}>
                   <TextInput
-                 value={item.Cost.toString()}
+                 value={item.Cost.toString()}         
                  style={styles.input}
+                 name={'Cost'}
+
                 />
                   </Row>
                 )}
@@ -256,23 +250,21 @@ const deletehandler=()=>{
           }}
           btnTitle={'OK'}
         />
-
-
-        {/* table for input purpose */}
+                  {/* table for input purpose */}
           <Grid>
             {/* column for the title of the expenditure */}
             <Col>
             <SectionList 
             keyExtractor={(item,index)=>index.toString()}
-            sections={DATA}
+            sections={DATA1}
             renderItem={({item})=>(
               <Row style={styles.cell}>
               <TextInput
                  placeholder="what did u spend on"
-                 placeholderTextColor='grey'  
+                value  ={item.Liabilities.toString()}             
                  style={styles.input}
                  onEndEditing={LiabilityKeeperHandler}
-                />
+                />.
               </Row>
             )}
             renderSectionHeader={({section})=>(
@@ -286,17 +278,18 @@ const deletehandler=()=>{
             <Col>
             <SectionList 
             keyExtractor={(item,index)=>index.toString()}
-            sections={DATA}
+            sections={DATA1}
             renderItem={({item})=>(
               <Row style={styles.cell}>
               <TextInput
                  placeholder="how much did it cost"
                  placeholderTextColor='grey'
                  style={styles.input}
+                 value={item.Cost.toString()}
                  onEndEditing={CostKeeperHandler}
                 />
               </Row>
-            )}
+            )}CostKeeperHandler
             renderSectionHeader={({section})=>(
               <Row style={styles.tableheader}>
             <Text style={styles.text}>COST</Text>
@@ -305,21 +298,23 @@ const deletehandler=()=>{
              />
             </Col>
           </Grid>
+
+ 
           <View>
             <Text  style={styles.text}>Total:{cost} </Text>
           </View>
           <View>
-            <Text  style={styles.text}>The Last input: grocery:{Spend} and its cost is {Bill}</Text>
+            <Text  style={styles.text}>counter:{counterData} </Text>
           </View>
 
-            <CustomBotton
+          <CustomBotton
              onPressfunction={SumHandler}
              title={'TOTAL'}
             />
                <CustomBotton
              onPressfunction={()=>{
               counterData ? setTableboolean(true) :alert('no any data')
-              setCounterdata( counterData++)}}
+            }}
              title={'SHOW TABLE'}
             />
             <CustomBotton
